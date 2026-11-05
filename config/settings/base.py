@@ -20,6 +20,7 @@ DJANGO_APPS = [
 
 LOCAL_APPS = [
     'apps.orders',
+    'apps.support',
 ]
 
 THIRD_PARTY_APPS = [
