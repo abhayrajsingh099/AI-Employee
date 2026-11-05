@@ -1,3 +1,4 @@
+.vscode
 ### dotenv ###
 .envs/.env.local
 .envs/.env.production

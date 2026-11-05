@@ -8,7 +8,8 @@ django = "==6.0.5"
 python-dotenv = "*"
 
 [dev-packages]
-pytest = "==9.2.0"
+pytest = "*"
+pytest-django = "*"
 
 [requires]
 python_version = "3.13"
