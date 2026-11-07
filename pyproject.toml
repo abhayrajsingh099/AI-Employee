@@ -6,4 +6,4 @@ target-version = "py313"
 select = ["E4", "E7", "E9", "F"]
 
 [tool.ruff.lint.per-file-ignores]
-"config/settings/local.py" = ["F403", "F405"]
+"config/settings/*.py" = ["F403", "F405"]

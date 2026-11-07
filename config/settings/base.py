@@ -1,13 +1,15 @@
-from os import getenv, path
+from os import getenv
 from dotenv import load_dotenv
 from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-local_env_file = path.join(BASE_DIR, ".envs", ".env.local")
+ENV_FILE = getenv("ENV_FILE", ".envs/.env.local")
 
-if path.isfile(local_env_file):
-    load_dotenv(local_env_file)
+env_file_path = BASE_DIR / ENV_FILE
+
+if env_file_path.is_file():
+    load_dotenv(env_file_path)
 
 DJANGO_APPS = [
     "django.contrib.admin",
@@ -63,11 +65,11 @@ WSGI_APPLICATION = "config.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": getenv("NAME"),
-        "USER": getenv("USER"),
-        "PASSWORD": getenv("PASSWORD"),
-        "HOST": getenv("HOST"),
-        "POST": getenv("POST"),
+        "NAME": getenv("DB_NAME"),
+        "USER": getenv("DB_USER"),
+        "PASSWORD": getenv("DB_PASSWORD"),
+        "HOST": getenv("DB_HOST"),
+        "PORT": getenv("DB_PORT", "3306"),
     },
 }
 

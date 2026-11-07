@@ -1,39 +1,66 @@
+
 name: Django CI
 
 on:
-    push:
-        branches:
-            - main
+  push:
+    branches:
+      - main
 
 jobs:
-    django-test:
-        runs-on: ubuntu-latest
+  django-test:
+    runs-on: ubuntu-latest
 
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
+    env:
+      DJANGO_SETTINGS_MODULE: config.settings.ci
+      ENV_FILE: ""
+      SECRET_KEY: "temporary-ci-secret-key"
+      DEBUG: "False"
 
-            - name: Set up Python
-              uses: actions/setup-python@v5
-              with:
-                python-version: '3.13'
+      DB_NAME: django_test_db
+      DB_USER: root
+      DB_PASSWORD: ci_mysql_password
+      DB_HOST: 127.0.0.1
+      DB_PORT: "3306"
 
-            - name: Install dependencies
-              run: |
-                python -m pip install --upgrade pip
-                pip install -r requirements/local.txt
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: ci_mysql_password
+          MYSQL_DATABASE: django_test_db
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -pci_mysql_password"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
 
-            - name: Django system checks
-              run: python manage.py check
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-            - name: Run tests
-              run: pytest
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
 
-            - name: Run linting
-              run: ruff check .
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements/local.txt
 
-            - name: Check code formatting
-              run: ruff format --check .
+      - name: Django system checks
+        run: python manage.py check
 
+      - name: Run migrations
+        run: python manage.py migrate --noinput
 
+      - name: Run tests
+        run: pytest
 
+      - name: Run linting
+        run: ruff check .
+
+      - name: Check code formatting
+        run: ruff format --check .
