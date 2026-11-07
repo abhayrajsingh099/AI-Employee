@@ -11,6 +11,7 @@ def orders_list(request):
     }
     return render(request, template_name='orders_list.html', context=context)
 
+@login_required
 def order_detail(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
     refunds = RefundRequest.objects.filter(order=order)
