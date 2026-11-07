@@ -3,6 +3,7 @@ from decimal import Decimal
 from django.contrib.auth.models import User
 from apps.orders.models import Product
 
+
 @pytest.fixture(scope="function")
 def test_user(db):
     return User.objects.create_user(
@@ -10,6 +11,7 @@ def test_user(db):
         email="testuser@mail.com",
         password="test@123",
     )
+
 
 @pytest.fixture
 def test_product(db):
@@ -19,4 +21,3 @@ def test_product(db):
         category="Electronics",
         in_stock=True,
     )
-

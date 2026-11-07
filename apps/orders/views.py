@@ -7,16 +7,17 @@ from django.contrib.auth.decorators import login_required
 def orders_list(request):
     orders = Order.objects.filter(user=request.user)
     context = {
-        'orders' : orders,
+        "orders": orders,
     }
-    return render(request, template_name='orders_list.html', context=context)
+    return render(request, template_name="orders_list.html", context=context)
+
 
 @login_required
 def order_detail(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
     refunds = RefundRequest.objects.filter(order=order)
     context = {
-        'order':order,
-        'refunds':refunds,
+        "order": order,
+        "refunds": refunds,
     }
-    return render(request, template_name='order_detail.html', context=context)
+    return render(request, template_name="order_detail.html", context=context)

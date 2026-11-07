@@ -4,6 +4,7 @@ from django.utils import timezone
 from apps.orders.models import Order
 from django.core.exceptions import ValidationError
 
+
 def test_order_creation_and_relationships(db, test_user, test_product):
     # ACT
     order = Order.objects.create(
@@ -42,10 +43,8 @@ def test_order_has_correct_amount(db, test_user, test_product):
     # Assert
     assert saved_order.amount == Decimal("50000.00")
 
-@pytest.mark.parametrize(
-    "status",
-    ["pending", "dispatched", "delivered", "cancelled"]
-)
+
+@pytest.mark.parametrize("status", ["pending", "dispatched", "delivered", "cancelled"])
 def test_order_accepts_status(test_user, test_product, status):
     order = Order(
         user=test_user,
@@ -60,9 +59,11 @@ def test_order_accepts_status(test_user, test_product, status):
 
     assert order.status == status
 
+
 def test_order_does_not_exist(db):
     with pytest.raises(Order.DoesNotExist):
         Order.objects.get(id=99999)
+
 
 def test_order_default_status_pending(db, test_user, test_product):
     order = Order.objects.create(
@@ -74,6 +75,7 @@ def test_order_default_status_pending(db, test_user, test_product):
     )
 
     assert order.status == "pending"
+
 
 def test_order_product_relationship_null(db, test_user):
     order = Order.objects.create(
@@ -87,6 +89,7 @@ def test_order_product_relationship_null(db, test_user):
 
     assert saved_order.product is None
 
+
 def test_order_string_representation(db, test_user):
     order = Order.objects.create(
         user=test_user,
@@ -97,7 +100,10 @@ def test_order_string_representation(db, test_user):
 
     saved_order = Order.objects.get(id=order.id)
 
-    assert str(saved_order) == f"Order #{order.id} - {order.product_name} ({order.status})"
+    assert (
+        str(saved_order) == f"Order #{order.id} - {order.product_name} ({order.status})"
+    )
+
 
 def test_order_rejects_invalid_status(test_user):
     order = Order(
@@ -110,5 +116,3 @@ def test_order_rejects_invalid_status(test_user):
 
     with pytest.raises(ValidationError):
         order.full_clean()
-
-

@@ -13,7 +13,6 @@ class Product(models.Model):
         return self.name
 
 
-
 class Order(models.Model):
     STATUS_CHOICES = [
         ("pending", "Pending"),
@@ -22,7 +21,9 @@ class Order(models.Model):
         ("cancelled", "Cancelled"),
     ]
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="orders")
-    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, related_name="orders")
+    product = models.ForeignKey(
+        Product, on_delete=models.SET_NULL, null=True, related_name="orders"
+    )
     product_name = models.CharField(max_length=255)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
@@ -36,17 +37,22 @@ class Order(models.Model):
         return f"Order #{self.id} - {self.product_name} ({self.status})"
 
 
-
 class RefundRequest(models.Model):
     STATUS_CHOICES = [
         ("pending", "Pending"),
         ("approved", "Approved"),
         ("denied", "Denied"),
     ]
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="refund_requests")
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="refund_requests")
+    order = models.ForeignKey(
+        Order, on_delete=models.CASCADE, related_name="refund_requests"
+    )
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="refund_requests"
+    )
     reason = models.TextField()
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending') # get_status_display()
+    status = models.CharField(
+        max_length=20, choices=STATUS_CHOICES, default="pending"
+    )  # get_status_display()
     created_at = models.DateTimeField()
 
     def __str__(self):
