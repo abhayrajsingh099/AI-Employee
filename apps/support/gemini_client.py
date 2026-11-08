@@ -40,7 +40,9 @@ class Messages:
                         system_instruction=system,
                         max_output_tokens=max_tokens,
                         tools=self._convert_tools(tools),
-                        automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
+                        automatic_function_calling=types.AutomaticFunctionCallingConfig(
+                            disable=True
+                        ),
                     ),
                 )
                 break
@@ -62,11 +64,13 @@ class Messages:
     def _convert_tools(self, tools):
         declarations = []
         for tool in tools:
-            declarations.append(types.FunctionDeclaration(
-                name=tool["name"],
-                description=tool["description"],
-                parameters_json_schema=tool["input_schema"],
-            ))
+            declarations.append(
+                types.FunctionDeclaration(
+                    name=tool["name"],
+                    description=tool["description"],
+                    parameters_json_schema=tool["input_schema"],
+                )
+            )
         return [types.Tool(function_declarations=declarations)]
 
     def _convert_messages(self, messages):
@@ -82,7 +86,9 @@ class Messages:
                 parts.append(types.Part.from_text(text=content))
             else:
                 for block in content:
-                    block_type = block["type"] if isinstance(block, dict) else block.type
+                    block_type = (
+                        block["type"] if isinstance(block, dict) else block.type
+                    )
 
                     if block_type == "text":
                         text = block["text"] if isinstance(block, dict) else block.text
@@ -90,24 +96,34 @@ class Messages:
 
                     elif block_type == "tool_use":
                         name = block["name"] if isinstance(block, dict) else block.name
-                        tool_input = block["input"] if isinstance(block, dict) else block.input
+                        tool_input = (
+                            block["input"] if isinstance(block, dict) else block.input
+                        )
                         tool_id = block["id"] if isinstance(block, dict) else block.id
-                        signature = None if isinstance(block, dict) else block.thought_signature
+                        signature = (
+                            None if isinstance(block, dict) else block.thought_signature
+                        )
                         tool_names[tool_id] = name
-                        parts.append(types.Part(
-                            function_call=types.FunctionCall(name=name, args=tool_input or {}, id=tool_id),
-                            thought_signature=signature,
-                        ))
+                        parts.append(
+                            types.Part(
+                                function_call=types.FunctionCall(
+                                    name=name, args=tool_input or {}, id=tool_id
+                                ),
+                                thought_signature=signature,
+                            )
+                        )
 
                     elif block_type == "tool_result":
                         tool_id = block["tool_use_id"]
-                        parts.append(types.Part(
-                            function_response=types.FunctionResponse(
-                                name=tool_names[tool_id],
-                                id=tool_id,
-                                response={"result": block["content"]},
+                        parts.append(
+                            types.Part(
+                                function_response=types.FunctionResponse(
+                                    name=tool_names[tool_id],
+                                    id=tool_id,
+                                    response={"result": block["content"]},
+                                )
                             )
-                        ))
+                        )
 
             contents.append(types.Content(role=role, parts=parts))
 
@@ -117,25 +133,37 @@ class Messages:
         blocks = []
         parts = []
 
-        if response.candidates and response.candidates[0].content and response.candidates[0].content.parts:
+        if (
+            response.candidates
+            and response.candidates[0].content
+            and response.candidates[0].content.parts
+        ):
             parts = response.candidates[0].content.parts
 
         for part in parts:
             if part.function_call:
                 call = part.function_call
-                blocks.append(ToolUseBlock(
-                    call.name,
-                    dict(call.args or {}),
-                    call.id or str(uuid.uuid4()),
-                    part.thought_signature,
-                ))
+                blocks.append(
+                    ToolUseBlock(
+                        call.name,
+                        dict(call.args or {}),
+                        call.id or str(uuid.uuid4()),
+                        part.thought_signature,
+                    )
+                )
             elif part.text and not part.thought:
                 blocks.append(TextBlock(part.text))
 
         if not blocks:
-            blocks.append(TextBlock("Sorry, I could not generate a reply. Please try again."))
+            blocks.append(
+                TextBlock("Sorry, I could not generate a reply. Please try again.")
+            )
 
-        stop_reason = "tool_use" if any(block.type == "tool_use" for block in blocks) else "end_turn"
+        stop_reason = (
+            "tool_use"
+            if any(block.type == "tool_use" for block in blocks)
+            else "end_turn"
+        )
         return Response(stop_reason, blocks)
 
 
