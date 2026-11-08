@@ -113,3 +113,6 @@ STATIC_URL = "static/"
 LOGIN_REDIRECT_URL = "/orders/"
 LOGOUT_REDIRECT_URL = "/login/"
 LOGIN_URL = "/login/"
+
+GEMINI_API_KEY=getenv("GEMINI_API_KEY")
+GEMINI_MODEL=getenv("GEMINI_MODEL")
